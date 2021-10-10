@@ -10,6 +10,7 @@ package dfile;
 import java.io.File;
 public class Ficheiro{
     private File inFile;
+    public int number=0;
     public File getInFile() {
         return inFile;
     }
@@ -43,10 +44,8 @@ public class Ficheiro{
         for (File fl : list) {
             
             if (!fl.isDirectory())
-               
                 System.out.println(fl);
             else{
-                
                 System.out.println(String.format("** Pasta: %s **", fl));
                 listarTodosFicheiros(fl);
             }
@@ -73,5 +72,24 @@ public class Ficheiro{
         }
         catch(Exception e){}
     }
+    
+    public int listFileExtension(File caminho, String extensao){
+        try{
+            File[] lista = caminho.listFiles();
+        for (File arquivos : lista) {
+            if (!arquivos.isDirectory()){
+               if(arquivos.getName().endsWith(extensao))
+                    number+=1;
+                }
+            else{
+                listFileExtension(arquivos, extensao);
+            }
+        }
+        
+        }
+        catch(Exception e){}
+        return number;
+    }
+    
     
 }
