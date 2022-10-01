@@ -10,7 +10,7 @@ package dfile;
 import java.io.File;
 public class Ficheiro{
     private File inFile;
-    public int number=0;
+    private int number=0;
     public File getInFile() {
         return inFile;
     }
@@ -60,19 +60,41 @@ public class Ficheiro{
     public void remFile(File caminho, String extensao){
         try{
             File[] lista = caminho.listFiles();
-        for (File arquivos : lista) {
-            if (!arquivos.isDirectory()){
-               if(arquivos.getName().endsWith(extensao))
-                    arquivos.delete();
+            for (File arquivos : lista) {
+                if (!arquivos.isDirectory()){
+                if(arquivos.getName().endsWith(extensao))
+                        arquivos.delete();
+                    }
+                else{
+                    remFile(arquivos, extensao);
                 }
-            else{
-                remFile(arquivos, extensao);
             }
-        }
-        }
+            }
         catch(Exception e){}
     }
     
+    //Remove todos os ficheiros com um array de várias extensões
+    public void remFile(File caminho, String[] extensao){
+        try{
+            File[] lista = caminho.listFiles();
+            for (int i = 0; i < extensao.length; i++) {
+                for (File arquivos : lista) {
+                    if (!arquivos.isDirectory()){
+                    if(arquivos.getName().endsWith(extensao[i]))
+                            arquivos.delete();
+                        }
+                    else{
+                        remFile(arquivos, extensao);
+                    }
+                }
+            }
+        }
+        catch(Exception e){
+
+        }
+    }
+    
+    //Lista todos os ficheiros de uma mesma extensão
     public int listFileExtension(File caminho, String extensao){
         try{
             File[] lista = caminho.listFiles();

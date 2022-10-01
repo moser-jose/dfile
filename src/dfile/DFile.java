@@ -9,14 +9,19 @@ import java.io.File;
 public class DFile {
 
     public static void main(String[] args) {
-        String s= "D:\\Julho\\Downloads\\BP";
+        String s= "E:\\BG";
         File f = new File(s);
         Ficheiro g = new Ficheiro(f);
+
+        String[] a={".nfo",".txt",".exe"};
         
         /* g.listarTodosFicheiros(f);
         g.remFile(f,".exe"); */
+        System.out.println(g.listFileExtension(f,".nfo"));
+        //g.remFile(f,".nfo"); 
+        g.remFile(f,a);
         
-        System.out.println(g.listFileExtension(f,".TS"));
+        
         //g.removerPasta(f);
  
     }
