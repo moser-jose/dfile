@@ -10,6 +10,7 @@ package dfile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -51,22 +52,30 @@ public class FileManager {
         }
     }
 
-    public void listAllFiles(File path) {
+    public List<String> listAllFiles(File path) {
+        List<String> results = new ArrayList<>();
         if (!path.exists()) {
             System.err.println("Path does not exist: " + path.getAbsolutePath());
-            return;
+            return results;
         }
         File[] files = path.listFiles();
         if (files == null) {
             System.err.println("Permission denied: " + path.getAbsolutePath());
-            return;
+            return results;
         }
+        collectAllFiles(path, results);
+        return results;
+    }
+
+    private void collectAllFiles(File path, List<String> results) {
+        File[] files = path.listFiles();
+        if (files == null) return;
         for (File file : files) {
             if (file.isDirectory()) {
-                System.out.println("** Directory: " + file.getAbsolutePath() + " **");
-                listAllFiles(file);
+                results.add("** Directory: " + file.getAbsolutePath() + " **");
+                collectAllFiles(file, results);
             } else {
-                System.out.println(file.getAbsolutePath());
+                results.add(file.getAbsolutePath());
             }
         }
     }
@@ -122,22 +131,24 @@ public class FileManager {
         }
     }
 
-    public void listFilesByExtension(File path, String extension) {
+    public List<String> listFilesByExtension(File path, String extension) {
+        List<String> results = new ArrayList<>();
         if (!path.exists()) {
             System.err.println("Path does not exist: " + path.getAbsolutePath());
-            return;
+            return results;
         }
-        listByExtensionRecursive(path, extension);
+        collectByExtension(path, extension, results);
+        return results;
     }
 
-    private void listByExtensionRecursive(File path, String extension) {
+    private void collectByExtension(File path, String extension, List<String> results) {
         File[] files = path.listFiles();
         if (files == null) return;
         for (File file : files) {
             if (file.isDirectory()) {
-                listByExtensionRecursive(file, extension);
+                collectByExtension(file, extension, results);
             } else if (file.getName().endsWith(extension)) {
-                System.out.println(file.getAbsolutePath());
+                results.add(file.getAbsolutePath());
             }
         }
     }

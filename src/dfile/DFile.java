@@ -8,6 +8,8 @@
 package dfile;
 
 import java.io.File;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * Usage:
@@ -35,14 +37,22 @@ public class DFile {
 
         switch (operation) {
             case "list":
+            case "ls":
                 if (args.length >= 3) {
-                    fm.listFilesByExtension(path, args[2]);
+                    List<String> filtered = fm.listFilesByExtension(path, args[2]);
+                    filtered.forEach(System.out::println);
+                    System.out.println();
+                    System.out.println("Files with extension \"" + args[2] + "\": " + filtered.size());
                 } else {
-                    fm.listAllFiles(path);
+                    List<String> all = fm.listAllFiles(path);
+                    all.forEach(System.out::println);
+                    System.out.println();
+                    fm.showStats(path);
                 }
                 break;
 
             case "count":
+            case "ct":
                 if (args.length >= 3) {
                     int total = fm.countFilesByExtension(path, args[2]);
                     System.out.println("Files with extension \"" + args[2] + "\": " + total);
@@ -52,19 +62,47 @@ public class DFile {
                 break;
 
             case "remove":
+            case "rm":
                 if (args.length < 3) {
                     System.err.println("Error: specify at least one extension or \"dir\". Ex: remove .txt .doc | remove dir");
                     System.exit(1);
                 }
-                if (args[2].equalsIgnoreCase("dir")) {
+                if (args[2].equalsIgnoreCase("dir") || args[2].equals("-d")) {
+                    System.out.print("Delete directory \"" + path.getAbsolutePath() + "\"? [y/N]: ");
+                    String answer;
+                    try (Scanner scanner = new Scanner(System.in)) {
+                        answer = scanner.nextLine().trim();
+                    }
+                    if (!answer.equalsIgnoreCase("y")) {
+                        System.out.println("Cancelled.");
+                        break;
+                    }
                     fm.removeDirectory(path);
                     System.out.println("Directory removed.");
                 } else if (args.length == 3) {
+                    System.out.print("Delete all \"" + args[2] + "\" files in \"" + path.getAbsolutePath() + "\"? [y/N]: ");
+                    String answerExt;
+                    try (Scanner scanner = new Scanner(System.in)) {
+                        answerExt = scanner.nextLine().trim();
+                    }
+                    if (!answerExt.equalsIgnoreCase("y")) {
+                        System.out.println("Cancelled.");
+                        break;
+                    }
                     fm.removeFiles(path, args[2]);
                     System.out.println("Done.");
                 } else {
                     String[] extensions = new String[args.length - 2];
                     System.arraycopy(args, 2, extensions, 0, extensions.length);
+                    System.out.print("Delete all " + String.join(", ", extensions) + " files in \"" + path.getAbsolutePath() + "\"? [y/N]: ");
+                    String answerExts;
+                    try (Scanner scanner = new Scanner(System.in)) {
+                        answerExts = scanner.nextLine().trim();
+                    }
+                    if (!answerExts.equalsIgnoreCase("y")) {
+                        System.out.println("Cancelled.");
+                        break;
+                    }
                     fm.removeFiles(path, extensions);
                     System.out.println("Done.");
                 }
@@ -79,10 +117,10 @@ public class DFile {
 
     private static void printUsage() {
         System.out.println("Usage:");
-        System.out.println("  java -jar DFile.jar <path> list [extension]");
-        System.out.println("  java -jar DFile.jar <path> count [extension]");
-        System.out.println("  java -jar DFile.jar <path> remove <ext1> [ext2 ...]");
-        System.out.println("  java -jar DFile.jar <path> remove dir");
+        System.out.println("  java -jar DFile.jar <path> list|ls [extension]");
+        System.out.println("  java -jar DFile.jar <path> count|ct [extension]");
+        System.out.println("  java -jar DFile.jar <path> remove|rm <ext1> [ext2 ...]");
+        System.out.println("  java -jar DFile.jar <path> remove|rm dir|-d");
         System.out.println();
         System.out.println("Examples:");
         System.out.println("  java -jar DFile.jar /home/user/docs list");
