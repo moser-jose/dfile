@@ -26,6 +26,32 @@ jar cfm dist/DFile.jar manifest.mf -C build/classes .
 javac -d build/classes src/dfile/*.java && jar cfm dist/DFile.jar manifest.mf -C build/classes .
 ```
 
+## Tests
+
+### Setup (first time only)
+
+Download the JUnit 5 standalone runner:
+
+```bash
+mkdir -p lib && curl -L -o lib/junit-platform-console-standalone-1.10.3.jar \
+  "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.3/junit-platform-console-standalone-1.10.3.jar"
+```
+
+### Run tests
+
+```bash
+# Compile all tests
+javac -cp lib/junit-platform-console-standalone-1.10.3.jar:build/classes \
+  -d build/test-classes $(find test -name "*.java")
+
+# Run all tests
+java -jar lib/junit-platform-console-standalone-1.10.3.jar \
+  --class-path build/classes:build/test-classes \
+  --scan-class-path
+```
+
+---
+
 ## Install (optional)
 
 To run `dfile` from anywhere without specifying the full JAR path. Build the JAR first (see above), then follow the steps for your OS.
@@ -40,7 +66,7 @@ sudo chmod +x /usr/local/bin/dfile
 
 **Uninstall:**
 ```bash
-sudo rm /usr/local/bin/dfile /usr/local/lib/dfile.jar
+sudo rm /usr/local/lib/dfile.jar /usr/local/bin/dfile
 ```
 
 ### Windows
@@ -51,10 +77,8 @@ Run the following commands in **PowerShell as Administrator**:
 # Create install directory
 New-Item -ItemType Directory -Force -Path "C:\Program Files\dfile"
 
-# Copy the JAR
+# Copy the JAR and wrapper script
 Copy-Item dist\DFile.jar "C:\Program Files\dfile\dfile.jar"
-
-# Copy the wrapper script
 Copy-Item dfile.bat "C:\Program Files\dfile\dfile.bat"
 
 # Add to system PATH (requires restart of terminal)
@@ -64,12 +88,6 @@ Copy-Item dfile.bat "C:\Program Files\dfile\dfile.bat"
 **Uninstall:**
 ```powershell
 Remove-Item -Recurse -Force "C:\Program Files\dfile"
-```
-
-Once installed, use `dfile` directly:
-
-```bash
-dfile /home/user/documents list .mkv
 ```
 
 ---
@@ -86,38 +104,43 @@ dfile <path> <operation> [options]
 
 ### Available operations
 
-| Operation | Description |
-|---|---|
-| `list` | Lists all files and directories recursively |
-| `list <extension>` | Lists only files with the given extension |
-| `count` | Shows total files, count per extension and total directories |
-| `count <extension>` | Counts files with the given extension |
-| `remove <ext1> [ext2 ...]` | Removes files with one or more extensions |
-| `remove dir` | Removes the directory and all its contents |
+| Operation | Alias | Description |
+|---|---|---|
+| `list [extension]` | `ls` | Lists all files and directories recursively |
+| `count [extension]` | `ct` | Shows total files, count per extension and total directories |
+| `remove <ext1> [ext2 ...]` | `rm` | Removes files with one or more extensions |
+| `remove dir\|-d` | `rm dir\|-d` | Removes the directory and all its contents |
 
 ### Examples
 
 ```bash
 # List all files
-java -jar dist/DFile.jar /home/user/documents list
+dfile /home/user/documents list
+dfile /home/user/documents ls
 
 # List only .mkv files
-java -jar dist/DFile.jar /home/user/documents list .pdf
+dfile /home/user/documents list .mkv
+dfile /home/user/documents ls .mkv
 
 # Full stats (files per extension and directories)
-java -jar dist/DFile.jar /home/user/documents count
+dfile /home/user/documents count
+dfile /home/user/documents ct
 
-# Count .nfo files
-java -jar dist/DFile.jar /home/user/documents count .mp3
+# Count .mp3 files
+dfile /home/user/documents count .mp3
+dfile /home/user/documents ct .mp3
 
-# Remove .exe files
-java -jar dist/DFile.jar C:\Users\user\downloads remove .pdf
+# Remove .pdf files
+dfile /home/user/downloads remove .pdf
+dfile /home/user/downloads rm .pdf
 
 # Remove multiple extensions at once
-java -jar dist/DFile.jar /tmp/folder remove .pdf .txt .mp3
+dfile /tmp/folder remove .nfo .txt .exe
+dfile /tmp/folder rm .nfo .txt .exe
 
 # Delete an entire directory
-java -jar dist/DFile.jar /tmp/temp-folder remove dir
+dfile /tmp/temp-folder remove dir
+dfile /tmp/temp-folder rm dir
 ```
 
 ## License
